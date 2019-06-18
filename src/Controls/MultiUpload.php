@@ -3,15 +3,16 @@
 namespace WebChemistry\Images\Controls;
 
 use Nette\Application\IPresenter;
+use Nette\Forms\Container;
 use Nette\Forms\Controls\UploadControl;
 use Nette\Forms\Form;
 use Nette\Forms\Validator;
 use Nette\Http\FileUpload;
-use Nette\Object;
 use WebChemistry\Images\AbstractStorage;
 use WebChemistry\Images\ImageStorageException;
 
-class MultiUpload extends UploadControl {
+class MultiUpload extends UploadControl
+{
 
 	/** @var string */
 	private $namespace;
@@ -49,7 +50,8 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @param string $label
 	 */
-	public function __construct($label = NULL) {
+	public function __construct($label = NULL)
+	{
 		parent::__construct($label, TRUE);
 
 		$this->addCondition(Form::FILLED)
@@ -59,7 +61,8 @@ class MultiUpload extends UploadControl {
 		$this->monitor('Nette\Application\IPresenter');
 	}
 
-	protected function attached($form) {
+	protected function attached($form)
+	{
 		parent::attached($form);
 
 		if ($form instanceof IPresenter) {
@@ -90,11 +93,13 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return string
 	 */
-	private function getRequiredMessage() {
+	private function getRequiredMessage()
+	{
 		return is_string($this->required) ? $this->required : Validator::$messages[Form::FILLED];
 	}
 
-	public function loadHttpData() {
+	public function loadHttpData()
+	{
 		parent::loadHttpData();
 
 		$this->validate();
@@ -125,7 +130,8 @@ class MultiUpload extends UploadControl {
 		}
 	}
 
-	public function errorCallback(Form $form) {
+	public function errorCallback(Form $form)
+	{
 		if (!$form->isValid() && $this->uploadedImages) {
 			foreach ($this->uploadedImages as $image) {
 				$this->storage->delete($image);
@@ -133,7 +139,8 @@ class MultiUpload extends UploadControl {
 		}
 	}
 
-	public function successCallback() {
+	public function successCallback()
+	{
 		$values = $this->defaultValues;
 		foreach ($this->toDelete as $index => $value) {
 			$this->storage->delete($value);
@@ -159,7 +166,8 @@ class MultiUpload extends UploadControl {
 	 * @param bool $value
 	 * @return self
 	 */
-	public function setRequired($value = TRUE) {
+	public function setRequired($value = TRUE)
+	{
 		$this->required = $value;
 
 		return $this;
@@ -168,7 +176,8 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return bool
 	 */
-	public function isRequired() {
+	public function isRequired()
+	{
 		return FALSE;
 	}
 
@@ -176,7 +185,8 @@ class MultiUpload extends UploadControl {
 	 * @param AbstractStorage $storage
 	 * @return Upload
 	 */
-	public function setStorage(AbstractStorage $storage) {
+	public function setStorage(AbstractStorage $storage)
+	{
 		$this->storage = $storage;
 
 		return $this;
@@ -187,7 +197,8 @@ class MultiUpload extends UploadControl {
 	 * @return self
 	 * @throws ImageStorageException
 	 */
-	public function setValue($value) {
+	public function setValue($value)
+	{
 		$this->defaultValues = (array) $value;
 
 		return $this;
@@ -196,7 +207,8 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return array
 	 */
-	public function getValue() {
+	public function getValue()
+	{
 		return $this->value;
 	}
 
@@ -204,7 +216,8 @@ class MultiUpload extends UploadControl {
 	 * @param string $namespace
 	 * @return Upload
 	 */
-	public function setNamespace($namespace) {
+	public function setNamespace($namespace)
+	{
 		$this->namespace = $namespace;
 
 		return $this;
@@ -215,14 +228,16 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return Checkbox[]
 	 */
-	public function getCheckboxes() {
+	public function getCheckboxes()
+	{
 		return $this->checkboxes;
 	}
 
 	/**
 	 * @return Checkbox[]
 	 */
-	public function getCheckboxesFine() {
+	public function getCheckboxesFine()
+	{
 		if (!$this->checkboxesFine || !$this->checkboxes) {
 			foreach ($this->checkboxes as $index => $checkbox) {
 				if ($checkbox->isOk()) {
@@ -239,7 +254,8 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return string
 	 */
-	protected function renderCheckboxes() {
+	protected function renderCheckboxes()
+	{
 		$return = '';
 		foreach ($this->getCheckboxesFine() as $checkbox) {
 			$return .= $checkbox->getControl();
@@ -251,7 +267,8 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return string
 	 */
-	public function getControl() {
+	public function getControl()
+	{
 		$control = parent::getControl();
 		$checkboxes = $this->renderCheckboxes();
 		if ($this->required && !$checkboxes) {
@@ -261,7 +278,8 @@ class MultiUpload extends UploadControl {
 		return $control . $checkboxes;
 	}
 
-	public function validate() {
+	public function validate()
+	{
 		if (!$this->isValidated) {
 			parent::validate();
 		}
@@ -270,16 +288,18 @@ class MultiUpload extends UploadControl {
 	/**
 	 * @return array
 	 */
-	private function getValueArray() {
+	private function getValueArray()
+	{
 		return is_array($this->value) ? $this->value : [$this->value];
 	}
 
-	public static function register($controlName = 'addMultiImageUpload') {
+	public static function register($controlName = 'addMultiImageUpload')
+	{
 		if (!is_string($controlName)) {
 			throw new ImageStorageException(sprintf('Control name must be a string, %s given', gettype($controlName)));
 		}
 
-		Object::extensionMethod('Nette\Forms\Container::' . $controlName, function ($form, $name, $label = NULL, $namespace = NULL) {
+		Container::extensionMethod($controlName, function ($form, $name, $label = null, $namespace = null) {
 			$control = new self($label);
 			$control->setNamespace($namespace);
 

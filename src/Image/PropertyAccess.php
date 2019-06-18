@@ -18,7 +18,10 @@ use WebChemistry;
  * @property string $absoluteName
  * @property-read string $nameWithPrefix
  */
-abstract class PropertyAccess extends Nette\Object {
+abstract class PropertyAccess
+{
+
+	use Nette\SmartObject;
 
 	const PREFIX_SEP = '_._';
 
@@ -65,7 +68,8 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return PropertyAccess
 	 */
-	public function generatePrefix() {
+	public function generatePrefix()
+	{
 		$this->setPrefix(Nette\Utils\Random::generate());
 
 		return $this;
@@ -74,14 +78,16 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return bool
 	 */
-	public function isOk() {
+	public function isOk()
+	{
 		return (bool) $this->getName();
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isOriginal() {
+	public function isOriginal()
+	{
 		return !$this->getWidth() && !$this->getHeight() && !$this->getHash();
 	}
 
@@ -89,7 +95,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess|static
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function getDefaultImageClass() {
+	public function getDefaultImageClass()
+	{
 		if (!$this->defaultImage) {
 			throw new WebChemistry\Images\ImageStorageException("Default image name does not exist.");
 		}
@@ -106,7 +113,8 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return PropertyAccess|static
 	 */
-	public function getOriginalClass() {
+	public function getOriginalClass()
+	{
 		$original = clone $this;
 		$original->setWidth(NULL)
 			->setHeight(NULL)
@@ -121,7 +129,8 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return string
 	 */
-	protected function getHash() {
+	protected function getHash()
+	{
 		if (!$this->useHelpers) {
 			return NULL;
 		}
@@ -141,7 +150,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function addHelper(WebChemistry\Images\Helpers\IHelper $helper, $name) {
+	public function addHelper(WebChemistry\Images\Helpers\IHelper $helper, $name)
+	{
 		if (isset($this->helpers[$name])) {
 			throw new WebChemistry\Images\ImageStorageException("Helper '$name' already exists.");
 		}
@@ -154,7 +164,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param string $parameter
 	 * @return array
 	 */
-	private function formatParameter($parameter) {
+	private function formatParameter($parameter)
+	{
 		if (!$parameter) {
 			return [];
 		}
@@ -167,7 +178,8 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @param Nette\Utils\Image $image
 	 */
-	protected function processHelpers(Nette\Utils\Image $image) {
+	protected function processHelpers(Nette\Utils\Image $image)
+	{
 		foreach ($this->useHelpers as $parameters) {
 			/** @var WebChemistry\Images\Helpers\IHelper $class */
 			list($class, $parameter) = $parameters;
@@ -180,7 +192,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param array $parameters
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function parseHelpers(array $parameters) {
+	public function parseHelpers(array $parameters)
+	{
 		if (!$parameters) {
 			$this->useHelpers = [];
 		}
@@ -204,7 +217,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param string $prefix
 	 * @return PropertyAccess
 	 */
-	public function setPrefix($prefix) {
+	public function setPrefix($prefix)
+	{
 		$this->prefix = $prefix;
 
 		return $this;
@@ -214,7 +228,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param string $suffix
 	 * @return PropertyAccess
 	 */
-	public function setSuffix($suffix) {
+	public function setSuffix($suffix)
+	{
 		$this->suffix = $suffix;
 
 		return $this;
@@ -225,7 +240,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setMixedSize($string) {
+	public function setMixedSize($string)
+	{
 		$explode = explode('|', $string);
 		$this->setSize($explode[0]);
 
@@ -241,7 +257,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setSize($size) {
+	public function setSize($size)
+	{
 		$explode = explode('x', $this->parseString($size));
 
 		if (count($explode) > 2) {
@@ -263,7 +280,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param string $name
 	 * @return PropertyAccess
 	 */
-	public function setAbsoluteName($name) {
+	public function setAbsoluteName($name)
+	{
 		if (!$name) {
 			return $this;
 		}
@@ -288,15 +306,18 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setName($name) {
+	public function setName($name)
+	{
 		$name = $this->parseString($name);
 
 		if (strpos($name, '/') !== FALSE || strpos($this->name, '\\') !== FALSE) {
 			throw new WebChemistry\Images\ImageStorageException(printf('Image name must not contain / or \. Given
 			%s.', $name));
-		} else if (strpos($name, '.') === FALSE) {
-			throw new WebChemistry\Images\ImageStorageException('Name must contain dot. Please use
+		} else {
+			if (strpos($name, '.') === FALSE) {
+				throw new WebChemistry\Images\ImageStorageException('Name must contain dot. Please use
 			method setNameWithoutSuffix.');
+			}
 		}
 
 		$this->name = substr($name, 0, strrpos($name, '.'));
@@ -310,7 +331,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setNameWithoutSuffix($name) {
+	public function setNameWithoutSuffix($name)
+	{
 		$this->name = $this->parseString($name);
 
 		if (strpos($this->name, '/') !== FALSE || strpos($this->name, '\\') !== FALSE) {
@@ -326,7 +348,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return $this
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setHeight($height) {
+	public function setHeight($height)
+	{
 		$this->checkNum($height);
 		$this->height = $height;
 
@@ -338,7 +361,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setWidth($width) {
+	public function setWidth($width)
+	{
 		$this->checkNum($width);
 		$this->width = $width;
 
@@ -350,7 +374,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return $this
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setNamespace($namespace) {
+	public function setNamespace($namespace)
+	{
 		$this->namespace = $this->parseString($namespace);
 
 		if ($this->namespace === self::ORIGINAL) {
@@ -365,7 +390,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setIntegerFlag($flag) {
+	public function setIntegerFlag($flag)
+	{
 		if (!is_numeric($flag)) {
 			throw new WebChemistry\Images\ImageStorageException('Flag muset be integer in PropertyAccess::setIntegerFlag');
 		}
@@ -380,7 +406,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return $this
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setFlag($flag) {
+	public function setFlag($flag)
+	{
 		if ($flag === NULL) {
 			$this->flag = NULL;
 
@@ -407,12 +434,15 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return PropertyAccess
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	public function setQuality($quality) {
+	public function setQuality($quality)
+	{
 		if (!is_int($quality)) {
 			throw new WebChemistry\Images\ImageStorageException(printf('Parameter quality must be integer, %s given.',
 				gettype($quality)));
-		} else if (!Nette\Utils\Validators::isInRange($quality, [0, 100])) {
-			throw new WebChemistry\Images\ImageStorageException('Quality must be value in range 0 - 100.');
+		} else {
+			if (!Nette\Utils\Validators::isInRange($quality, [0, 100])) {
+				throw new WebChemistry\Images\ImageStorageException('Quality must be value in range 0 - 100.');
+			}
 		}
 
 		$this->quality = $quality;
@@ -424,7 +454,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param string $defaultImage
 	 * @return PropertyAccess
 	 */
-	public function setDefaultImage($defaultImage) {
+	public function setDefaultImage($defaultImage)
+	{
 		$this->defaultImage = $defaultImage;
 
 		return $this;
@@ -435,7 +466,8 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return string
 	 */
-	public function getNameWithPrefix() {
+	public function getNameWithPrefix()
+	{
 		$prefix = $this->getPrefix();
 
 		return ($prefix ? $prefix . self::PREFIX_SEP : NULL) . $this->getName();
@@ -444,7 +476,8 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return string
 	 */
-	public function getAbsoluteName() {
+	public function getAbsoluteName()
+	{
 		$namespace = $this->getNamespace();
 
 		return ($namespace ? $namespace . '/' : '') . $this->getNameWithPrefix();
@@ -453,77 +486,88 @@ abstract class PropertyAccess extends Nette\Object {
 	/**
 	 * @return int|null
 	 */
-	public function getFlag() {
+	public function getFlag()
+	{
 		return $this->flag;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getName() {
+	public function getName()
+	{
 		return $this->name . ($this->suffix ? '.' . $this->suffix : '');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getNameWithoutSuffix() {
+	public function getNameWithoutSuffix()
+	{
 		return $this->name;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getNamespace() {
+	public function getNamespace()
+	{
 		return $this->namespace;
 	}
 
 	/**
 	 * @return int|string
 	 */
-	public function getWidth() {
+	public function getWidth()
+	{
 		return $this->width;
 	}
 
 	/**
 	 * @return int|string
 	 */
-	public function getHeight() {
+	public function getHeight()
+	{
 		return $this->height;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isBaseUri() {
+	public function isBaseUri()
+	{
 		return $this->baseUri;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getSuffix() {
+	public function getSuffix()
+	{
 		return $this->suffix;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getPrefix() {
+	public function getPrefix()
+	{
 		return $this->prefix;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getQuality() {
+	public function getQuality()
+	{
 		return $this->quality;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getDefaultImage() {
+	public function getDefaultImage()
+	{
 		return $this->defaultImage;
 	}
 
@@ -534,7 +578,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return mixed
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	private function flagToInteger($flag) {
+	private function flagToInteger($flag)
+	{
 		$flag = trim(Strings::upper($flag));
 
 		$value = @constant('Nette\Utils\Image::' . $flag);
@@ -551,7 +596,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @return int
 	 * @throws WebChemistry\Images\ImageStorageException
 	 */
-	private function checkNum($num) {
+	private function checkNum($num)
+	{
 		$parse = rtrim($num, '%');
 
 		if ($parse && !is_numeric($parse)) {
@@ -565,7 +611,8 @@ abstract class PropertyAccess extends Nette\Object {
 	 * @param string $str
 	 * @return string
 	 */
-	private function parseString($str) {
+	private function parseString($str)
+	{
 		return trim(trim($str), '/');
 	}
 

@@ -3,10 +3,10 @@
 namespace WebChemistry\Images\Controls;
 
 use Nette\Application\IPresenter;
+use Nette\Forms\Container;
 use Nette\Forms\Controls\UploadControl;
 use Nette\Forms\Form;
 use Nette\Http\FileUpload;
-use Nette\Object;
 use Nette\Utils\Callback;
 use Nette\Utils\Image;
 use WebChemistry\Images\AbstractStorage;
@@ -240,7 +240,7 @@ class Upload extends UploadControl {
 			throw new ImageStorageException(sprintf('Control name must be a string, %s given', gettype($controlName)));
 		}
 
-		Object::extensionMethod('Nette\Forms\Container::' . $controlName, function ($form, $name, $label = NULL, $namespace = NULL) {
+		Container::extensionMethod($controlName, function ($form, $name, $label = null, $namespace = null) {
 			$control = new self($label);
 			$control->setNamespace($namespace);
 
